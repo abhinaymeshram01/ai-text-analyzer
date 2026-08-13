@@ -1,91 +1,308 @@
-# AI Text Analyzer
+# 🤖 AI Text Analyzer
 
-An AI-powered text analysis application built with **Python, Google Gemini, and Streamlit**. The application analyzes user-provided text and generates a structured analysis containing a summary, key points, keywords, sentiment, entities, and actionable tasks.
+An AI-powered document analysis application that uses **Google Gemini** to analyze short and long text documents and extract structured insights such as summaries, key points, keywords, sentiment, named entities, and action items.
 
-## Features
+The application automatically handles long documents by splitting them into manageable chunks, analyzing each chunk independently, and combining the results into a final structured analysis.
 
-* **AI-powered text summarization**
-* **Key point extraction**
-* **Keyword extraction**
-* **Sentiment analysis**
-* **Entity extraction**
-* **Action-item extraction**
-* **Long-text processing using chunking**
-* **Multi-chunk result aggregation**
-* **Structured JSON output**
-* **Streamlit web interface**
-* **Automated testing with Pytest**
-* **Evaluation framework for model outputs**
+## 🚀 Live Demo
 
-## Architecture
+**Streamlit App:** https://ai-text-analyzer-5zuuvd7fa5m7hsbvbt6j8g.streamlit.app/
+
+**GitHub:**
+https://github.com/abhinaymeshram01/ai-text-analyzer
+
+---
+
+## 📌 Project Overview
+
+Reading and analyzing long documents manually can be time-consuming.
+
+This project provides an AI-powered interface where users can upload a `.txt` document or paste text directly into the application.
+
+The system sends the text to **Google Gemini**, extracts structured information, and presents the results through an interactive Streamlit dashboard.
+
+### The application extracts:
+
+* 📝 Summary
+* 🔑 Key Points
+* 🏷️ Keywords
+* 😊 Sentiment
+* 🏢 Named Entities
+* ✅ Action Items
+
+For long documents, the application automatically performs **chunk-based processing** instead of sending the entire document in a single request.
+
+---
+
+## ✨ Features
+
+### 📝 Intelligent Summarization
+
+Generate summaries in three modes:
+
+* Short
+* Medium
+* Detailed
+
+### 📚 Long Document Processing
+
+Documents exceeding the configured threshold are automatically divided into smaller chunks.
+
+Each chunk is analyzed independently and the results are combined into one final analysis.
+
+### 🔑 Key Point Extraction
+
+Identifies the most important information from the document.
+
+### 🏷️ Keyword Extraction
+
+Extracts important topics and terms from the document.
+
+### 😊 Sentiment Analysis
+
+Classifies the overall sentiment as:
+
+* Positive
+* Negative
+* Neutral
+
+### 🏢 Named Entity Extraction
+
+Identifies relevant entities such as:
+
+* Organizations
+* Teams
+* Locations
+* Dates
+* Other important named references
+
+### ✅ Action Item Extraction
+
+Identifies tasks, responsibilities, deadlines, and follow-up actions.
+
+### 📊 Document Statistics
+
+The Streamlit interface displays:
+
+* Character count
+* Word count
+* Line count
+* Paragraph count
+
+### 📥 JSON Export
+
+Analysis results can be downloaded as a structured JSON file.
+
+### 🧪 Automated Testing
+
+The project includes Pytest tests covering:
+
+* Empty input validation
+* Result structure
+* Long-document processing
+
+---
+
+# 🏗️ System Architecture
 
 ```text
-User Input
-    │
-    ▼
-Streamlit Interface
-    │
-    ▼
-Text Analyzer
-    │
-    ├── Short Text ──────► Gemini API
-    │
-    └── Long Text
-            │
-            ▼
-       Text Chunking
-            │
-            ▼
-       Gemini Analysis
-            │
-            ▼
-     Chunk Result Aggregation
-            │
-            ▼
-       Final Analysis
-            │
-            ▼
-    Structured JSON Result
+                         ┌──────────────────────┐
+                         │       User           │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │  Streamlit Frontend  │
+                         │ streamlit_app.py     │
+                         └──────────┬───────────┘
+                                    │
+                         Text / TXT Upload
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │      Analyzer        │
+                         │  app/analyzer.py     │
+                         └──────────┬───────────┘
+                                    │
+                     ┌──────────────┴──────────────┐
+                     │                             │
+                Short Text                    Long Text
+                     │                             │
+                     │                    ┌────────▼────────┐
+                     │                    │  Text Chunking  │
+                     │                    │   CHUNK_SIZE    │
+                     │                    └────────┬────────┘
+                     │                             │
+                     │                       Multiple Chunks
+                     │                             │
+                     └──────────────┬──────────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │       Prompts        │
+                         │  app/prompts.py      │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │    Gemini API        │
+                         │ app/gemini_api.py    │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Structured JSON      │
+                         │ Response             │
+                         └──────────┬───────────┘
+                                    │
+                          Long Text Only
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Result Combination   │
+                         │ & Final Analysis     │
+                         └──────────┬───────────┘
+                                    │
+                                    ▼
+                         ┌──────────────────────┐
+                         │ Streamlit Results    │
+                         │ Cards / Sections     │
+                         └──────────────────────┘
 ```
 
-## Output
+---
 
-For each input, the application generates:
+# 🔄 Processing Pipeline
+
+## 1. Input
+
+The user can either:
+
+* Upload a UTF-8 `.txt` file
+* Paste text into the application
+
+```text
+TXT File / Text Input
+        │
+        ▼
+   Input Validation
+```
+
+## 2. Document Classification
+
+The analyzer checks the text length.
+
+```text
+Text
+ │
+ ├── <= 12,000 characters
+ │        │
+ │        ▼
+ │    Direct Analysis
+ │
+ └── > 12,000 characters
+          │
+          ▼
+      Chunk Processing
+```
+
+The current configuration uses:
+
+```python
+MAX_TEXT_LENGTH = 12000
+CHUNK_SIZE = 8000
+```
+
+## 3. Chunking
+
+For long documents, the system attempts to preserve paragraph boundaries.
+
+```text
+Long Document
+      │
+      ▼
+Split into paragraphs
+      │
+      ▼
+Create chunks
+      │
+      ├── Chunk 1
+      ├── Chunk 2
+      ├── Chunk 3
+      └── ...
+```
+
+If an individual paragraph exceeds the chunk size, it is split into smaller pieces.
+
+## 4. Gemini Analysis
+
+Each chunk is passed through the prompt-building layer.
+
+```text
+Text Chunk
+    │
+    ▼
+build_summary_prompt()
+    │
+    ▼
+Gemini API
+    │
+    ▼
+JSON Analysis
+```
+
+The expected structured output contains:
 
 ```json
 {
-  "summary": "Short summary of the text",
-  "key_points": [
-    "Important point 1",
-    "Important point 2"
-  ],
-  "keywords": [
-    "keyword 1",
-    "keyword 2"
-  ],
-  "sentiment": "Neutral",
-  "entities": [
-    "Entity 1",
-    "Entity 2"
-  ],
-  "action_items": [
-    "Action item 1",
-    "Action item 2"
-  ]
+    "summary": "...",
+    "key_points": [],
+    "keywords": [],
+    "sentiment": "Neutral",
+    "entities": [],
+    "action_items": []
 }
 ```
 
-## Tech Stack
+## 5. Result Combination
 
-* Python
-* Google Gemini API
-* Google GenAI SDK
-* Streamlit
-* Scikit-learn
-* Pytest
-* python-dotenv
+For long documents:
 
-## Project Structure
+```text
+Chunk 1 Analysis ─┐
+Chunk 2 Analysis ─┤
+Chunk 3 Analysis ─┤
+Chunk 4 Analysis ─┤
+                  ▼
+           Combination Prompt
+                  │
+                  ▼
+          Final Gemini Analysis
+                  │
+                  ▼
+          Final Structured JSON
+```
+
+The final analysis removes duplicated information and combines related information.
+
+## 6. Streamlit Presentation
+
+The final JSON is parsed and displayed as separate UI sections:
+
+```text
+                    Analysis Result
+                           │
+       ┌───────────┬───────┼───────┬───────────┐
+       ▼           ▼       ▼       ▼           ▼
+    Summary    Key Points Keywords Sentiment Entities
+                           │
+                           ▼
+                      Action Items
+```
+
+---
+
+# 📁 Project Structure
 
 ```text
 ai-text-analyzer/
@@ -108,42 +325,202 @@ ai-text-analyzer/
 ├── .env
 ├── .gitignore
 ├── evaluate.py
+├── list_models.py
 ├── requirements.txt
 ├── run_gemini_test.py
 ├── run_long_text_test.py
-└── streamlit_app.py
+├── streamlit_app.py
+└── README.md
 ```
 
-> `.env` is intentionally excluded from Git because it contains the Gemini API key.
+> `.env`, virtual environments, caches, and other sensitive/local files should remain excluded from Git.
 
-## Installation
+---
 
-Clone the repository and move into the project directory:
+# 🧩 Main Components
+
+## `streamlit_app.py`
+
+Responsible for the user interface.
+
+Responsibilities:
+
+* Text input
+* TXT upload
+* Summary length selection
+* Document statistics
+* Analyze button
+* Result visualization
+* JSON download
+* Error handling
+
+---
+
+## `app/analyzer.py`
+
+Contains the main document-analysis logic.
+
+Responsibilities:
+
+* Validate input
+* Detect short vs. long documents
+* Split long documents
+* Analyze individual chunks
+* Combine chunk-level results
+
+Core functions include:
+
+```python
+split_text()
+analyze_chunk()
+summarize_text()
+```
+
+---
+
+## `app/prompts.py`
+
+Contains the prompt-building logic used to instruct Gemini.
+
+This separates prompt design from the application and analyzer logic.
+
+---
+
+## `app/gemini_api.py`
+
+Handles communication with Google Gemini.
+
+Responsibilities:
+
+* API key loading
+* Gemini client creation
+* Model invocation
+* JSON response configuration
+* API response handling
+
+The application supports:
+
+```text
+Local Development
+      │
+      ▼
+.env
+
+Streamlit Cloud
+      │
+      ▼
+Streamlit Secrets
+```
+
+The API key is never stored directly in the source code.
+
+---
+
+## `evaluate.py`
+
+Evaluates the quality of the generated results against a manually created evaluation dataset.
+
+The evaluation includes:
+
+* Summary similarity
+* Sentiment accuracy
+* Keyword matching
+* Entity matching
+* Action-item matching
+
+---
+
+## `test/test_analyzer.py`
+
+Contains automated tests for the analyzer.
+
+Run:
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+python -m pytest
+```
+
+Example result:
+
+```text
+3 passed
+```
+
+---
+
+# 🛠️ Tech Stack
+
+### Programming Language
+
+* Python
+
+### AI / LLM
+
+* Google Gemini
+
+### Frontend
+
+* Streamlit
+
+### Data Processing
+
+* JSON
+* Python standard library
+
+### Testing
+
+* Pytest
+
+### Environment Management
+
+* python-dotenv
+
+### API / SDK
+
+* Google GenAI SDK
+
+### Version Control
+
+* Git
+* GitHub
+
+---
+
+# ⚙️ Installation
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/abhinaymeshram01/ai-text-analyzer.git
+```
+
+```bash
 cd ai-text-analyzer
 ```
 
-Create a virtual environment:
+## 2. Create a virtual environment
+
+### Windows
 
 ```bash
 python -m venv venv
 ```
 
-Activate it on Windows:
+Activate it:
 
 ```powershell
-venv\Scripts\activate
+venv\Scripts\Activate.ps1
 ```
 
-Install dependencies:
+## 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Environment Variables
+---
+
+# 🔐 Environment Configuration
 
 Create a `.env` file in the project root:
 
@@ -151,141 +528,134 @@ Create a `.env` file in the project root:
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-Never commit the `.env` file to GitHub.
+Never commit this file to GitHub.
 
-## Run the Application
+Your `.gitignore` should contain:
 
-Start the Streamlit application:
+```gitignore
+.env
+venv/
+__pycache__/
+.pytest_cache/
+```
+
+---
+
+# ▶️ Running the Application
+
+Start Streamlit:
 
 ```bash
 streamlit run streamlit_app.py
 ```
 
-Streamlit will provide a local URL where the application can be accessed.
+The application will open in your browser.
 
-## Long-Text Processing
+---
 
-The application handles large documents using a chunking strategy.
+# 🧪 Running Tests
 
-When the input exceeds the configured threshold:
-
-```text
-Large Document
-      │
-      ▼
-Split into chunks
-      │
-      ├── Chunk 1 → Gemini
-      ├── Chunk 2 → Gemini
-      ├── Chunk 3 → Gemini
-      └── ...
-      │
-      ▼
-Combine chunk analyses
-      │
-      ▼
-Final Gemini aggregation
-      │
-      ▼
-Final structured analysis
-```
-
-This allows the application to process documents that are too large to analyze reliably in a single request.
-
-## Testing
-
-Run the automated tests:
+Run the complete test suite:
 
 ```bash
 python -m pytest
 ```
 
-Current test suite:
-
-```text
-3 passed
-```
-
-The tests cover:
-
-* Empty input validation
-* Result structure validation
-* Long-text processing
-
-## Evaluation
-
-The project includes an evaluation script:
+For detailed output:
 
 ```bash
-python evaluate.py
+python -m pytest -vv
 ```
 
-The evaluation framework compares model predictions against predefined expected outputs.
+---
 
-Current benchmark:
+# 📊 Evaluation
 
-| Metric                    |  Score |
-| ------------------------- | -----: |
-| Sentiment Accuracy        |    80% |
-| Keyword Match             |    90% |
-| Entity Match              |   100% |
-| Action Item Match         |   100% |
-| Summary TF-IDF Similarity | 42.89% |
+The project includes a small manually created evaluation dataset.
 
-The summary similarity score is based on lexical similarity and should **not** be interpreted as semantic summary accuracy.
+Current evaluation results:
 
-The current benchmark contains only a small evaluation dataset, so these results should be treated as an initial project benchmark rather than statistically significant model performance.
+| Metric             | Result |
+| ------------------ | -----: |
+| Sentiment Accuracy |    80% |
+| Keyword Match      |    90% |
+| Entity Match       |   100% |
+| Action Item Match  |   100% |
+| Summary Similarity | 42.89% |
 
-## Example Use Cases
+### Important interpretation
 
-The application can be used for:
+These metrics should not be treated as a benchmark of Gemini's general performance.
 
-* Meeting notes analysis
-* Business documents
-* Customer feedback
-* Product reviews
-* Internal reports
-* Project updates
-* Task extraction
-* Document summarization
+The evaluation dataset is small, and the keyword/entity/action-item metrics use custom matching rules.
 
-## Key Engineering Concepts Demonstrated
+The summary similarity score is particularly limited because semantically equivalent summaries can use very different wording.
+
+Therefore, the evaluation is primarily useful for **regression testing and checking whether changes to the application degrade structured output quality**.
+
+---
+
+# ⚠️ Limitations
+
+* The application currently focuses on TXT documents.
+* Gemini API usage depends on available API quota.
+* LLM responses are probabilistic and may occasionally contain incorrect information.
+* Long-document analysis requires multiple Gemini API calls.
+* Chunk-based processing can lose context that exists across distant sections.
+* Evaluation is based on a relatively small manually created dataset.
+* Summary similarity does not fully measure semantic correctness.
+* The application does not currently provide citation or source tracing for extracted information.
+
+---
+
+# 🔮 Future Improvements
+
+Possible improvements include:
+
+* [ ] PDF document support
+* [ ] DOCX document support
+* [ ] CSV analysis
+* [ ] Larger evaluation dataset
+* [ ] Better semantic evaluation using embedding similarity
+* [ ] Source citations for extracted information
+* [ ] Persistent analysis history
+* [ ] User authentication
+* [ ] Rate limiting
+* [ ] Background processing for very large documents
+* [ ] Docker deployment
+* [ ] Cloud monitoring
+* [ ] Automated CI/CD pipeline
+
+---
+
+# 🎯 What This Project Demonstrates
 
 This project demonstrates practical experience with:
 
 * LLM API integration
 * Prompt engineering
 * Structured JSON generation
+* Long-document processing
 * Text chunking
-* Long-context processing
-* Result aggregation
+* Streamlit application development
+* API-key management
 * Error handling
 * Automated testing
-* Model-output evaluation
-* Streamlit application development
-* Environment-variable management
-* Git version control
+* LLM output evaluation
+* Git/GitHub workflow
+* Cloud deployment
 
-## Limitations
+---
 
-* Analysis quality depends on the Gemini model response.
-* LLM outputs can occasionally be inconsistent.
-* The evaluation dataset is currently small.
-* TF-IDF similarity does not measure semantic similarity perfectly.
-* Long documents require multiple API calls, which can increase latency and API usage.
+# 👨‍💻 Author
 
-## Future Improvements
+**Abhinay Meshram**
 
-* Add semantic evaluation using embeddings.
-* Add configurable Gemini model selection.
-* Add document upload support for PDF and TXT files.
-* Add caching to reduce repeated API calls.
-* Add authentication.
-* Add Docker support.
-* Deploy the application to a cloud platform.
-* Expand the evaluation dataset.
-* Add logging and monitoring.
+GitHub:
+https://github.com/abhinaymeshram01
 
-## License
+---
 
-This project is intended for educational and portfolio purposes.
+## ⭐ Project Summary
+
+**AI Text Analyzer** is an end-to-end LLM application that transforms unstructured documents into structured, actionable insights using Google Gemini, with automatic long-document chunking, evaluation, automated testing, and an interactive Streamlit interface.
