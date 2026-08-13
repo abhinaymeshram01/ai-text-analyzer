@@ -1,0 +1,83 @@
+[
+    {
+        "id": 1,
+        "text": "Our company will launch a new product in September. The marketing team must complete the campaign by August 20.",
+        "expected_sentiment": "Neutral",
+        "expected_keywords": [
+            "product launch",
+            "marketing campaign"
+        ],
+        "expected_entities": [
+            "marketing team"
+        ],
+        "expected_action_items": [
+            "complete the campaign"
+        ],
+        "expected_summary": "The company will launch a new product in September, with the marketing team completing the campaign by August 20."
+
+    },
+    {
+        "id": 2,
+        "text": "I absolutely love this product. It is fast, reliable, beautifully designed, and has made my work much easier.",
+        "expected_sentiment": "Positive",
+        "expected_keywords": [
+            "product",
+            "fast",
+            "reliable",
+            "design"
+        ],
+        "expected_entities": [],
+        "expected_action_items": [],
+        "expected_summary": "The reviewer is highly satisfied with the product, praising its speed, reliability, design, and usefulness."
+
+    },
+    {
+        "id": 3,
+        "text": "This service was terrible. The application was constantly crashing and customer support failed to solve my problem.",
+        "expected_sentiment": "Negative",
+        "expected_keywords": [
+            "service",
+            "application",
+            "customer support"
+        ],
+        "expected_entities": [],
+        "expected_action_items": [],
+        "expected_summary": "The user had a poor experience with the service because the application repeatedly crashed and customer support was unhelpful."
+
+    },
+    {
+        "id": 4,
+        "text": "The engineering team will complete testing by August 25. The marketing team will finalize the campaign by August 20. Operations will prepare the production environment by September 1. Customer support will complete product training before launch.",
+        "expected_sentiment": "Neutral",
+        "expected_keywords": [
+        "product launch",
+        "marketing campaign"
+        ],
+        "expected_entities": [
+            "engineering team",
+            "marketing team",
+            "operations",
+            "customer support"
+        ],
+        "expected_action_items": [
+            "complete the campaign"
+        ],
+        "expected_summary": "The company is preparing for a product launch with marketing, engineering, operations, and customer support completing key tasks before release."
+
+    },
+    {
+        "id": 5,
+        "text": "The product has an excellent design and several useful features, but the application is slow and the customer support response time is disappointing.",
+        "expected_sentiment": "Negative",
+        "expected_keywords": [
+            "product",
+            "design",
+            "application",
+            "customer support"
+        ],
+        "expected_entities": [],
+        "expected_action_items": [],
+        "expected_summary": "The product has good design and features, but slow application performance and disappointing customer support negatively affect the experience."
+
+    }
+]
