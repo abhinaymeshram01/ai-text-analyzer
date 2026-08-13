@@ -8,52 +8,124 @@ st.set_page_config(
     page_title="AI Text Analyzer",
     page_icon="🤖",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
 st.markdown(
     """
     <style>
 
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+        max-width: 1400px;
+    }
+
+
     .main-title {
-        font-size: 42px;
-        font-weight: 700;
-        margin-bottom: 5px;
+        font-size: 46px;
+        font-weight: 800;
+        margin-bottom: 0;
+        letter-spacing: -1px;
     }
 
     .subtitle {
         font-size: 18px;
         color: #777;
-        margin-bottom: 25px;
+        margin-top: 5px;
+        margin-bottom: 30px;
     }
 
-    .result-card {
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        margin-bottom: 15px;
+    .card {
+        background-color: rgba(128, 128, 128, 0.08);
+        border: 1px solid rgba(128, 128, 128, 0.20);
+        border-radius: 14px;
+        padding: 22px;
+        margin-bottom: 18px;
     }
 
-    .sentiment {
+    .card-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+
+    .keyword-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .keyword-chip {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 20px;
+        background-color: rgba(70, 130, 180, 0.12);
+        border: 1px solid rgba(70, 130, 180, 0.25);
+        font-size: 14px;
+    }
+
+
+    .entity-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .entity-chip {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 20px;
+        background-color: rgba(128, 128, 128, 0.10);
+        border: 1px solid rgba(128, 128, 128, 0.25);
+        font-size: 14px;
+    }
+
+
+    .sentiment-positive {
         font-size: 24px;
-        font-weight: 600;
+        font-weight: 700;
+    }
+
+    .sentiment-negative {
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .sentiment-neutral {
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+
+    .footer {
+        text-align: center;
+        color: #888;
+        font-size: 13px;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(128, 128, 128, 0.20);
     }
 
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 st.markdown(
     '<div class="main-title">🤖 AI Text Analyzer</div>',
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 st.markdown(
-    '<div class="subtitle">'
-    'Analyze long documents using Google Gemini AI'
-    '</div>',
-    unsafe_allow_html=True
+    """
+    <div class="subtitle">
+        Analyze documents with Google Gemini AI — summaries,
+        key points, keywords, sentiment, entities, and action items.
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 with st.sidebar:
@@ -62,127 +134,195 @@ with st.sidebar:
 
     summary_type = st.selectbox(
         "Summary Length",
-        [
-            "short",
-            "medium",
-            "detailed"
-        ],
-        format_func=lambda x: x.capitalize()
+        ["short", "medium", "detailed"],
+        index=1,
+        format_func=lambda value: value.capitalize(),
     )
 
     st.divider()
 
-    st.subheader("📌 Supported Analysis")
+    st.subheader("📌 Analysis Features")
 
     st.markdown(
         """
-        - 📝 Summary
-        - 🔑 Key Points
-        - 🏷️ Keywords
-        - 😊 Sentiment
-        - 🏢 Entities
-        - ✅ Action Items
+        📝 **Summary**
+
+        🔑 **Key Points**
+
+        🏷️ **Keywords**
+
+        😊 **Sentiment**
+
+        🏢 **Named Entities**
+
+        ✅ **Action Items**
         """
     )
 
     st.divider()
 
+    st.subheader("🧠 Processing")
+
     st.caption(
-        "Powered by Google Gemini"
+        "Short documents are analyzed directly. "
+        "Long documents are automatically split into "
+        "manageable chunks before Gemini analysis."
     )
+
+    st.divider()
+
+    st.caption("Powered by Google Gemini")
 
 st.header("📄 Input Document")
 
 uploaded_file = st.file_uploader(
     "Upload a TXT file",
-    type=["txt"]
+    type=["txt"],
+    help="Upload a UTF-8 encoded text file.",
 )
 
 
 text_input = st.text_area(
     "Or paste your text below",
-    height=280,
+    height=260,
     placeholder=(
-        "Paste your document here..."
-    )
+        "Paste your document here...\n\n"
+        "Example:\n"
+        "The company is preparing to launch a new "
+        "product in September."
+    ),
 )
 
-text = text_input
+text = text_input.strip()
 
+uploaded_file_name = None
 
 if uploaded_file is not None:
 
     try:
 
-        file_text = uploaded_file.read().decode(
-            "utf-8"
-        )
+        uploaded_text = uploaded_file.read().decode("utf-8")
 
-        text = file_text
+        if uploaded_text.strip():
 
-        st.success(
-            f"📄 Loaded: {uploaded_file.name}"
-        )
+            text = uploaded_text.strip()
+            uploaded_file_name = uploaded_file.name
+
+            st.success(
+                f"📄 Loaded: **{uploaded_file.name}**"
+            )
 
     except UnicodeDecodeError:
 
         st.error(
-            "Unable to read this file. "
+            "❌ Unable to read this file. "
             "Please upload a UTF-8 encoded TXT file."
         )
 
         text = ""
 
-if text.strip():
-
-    words = len(
-        text.split()
-    )
+if text:
 
     characters = len(text)
 
-    col1, col2 = st.columns(2)
+    words = len(text.split())
+
+    lines = len(text.splitlines())
+
+    paragraphs = len(
+        [
+            paragraph
+            for paragraph in text.split("\n\n")
+            if paragraph.strip()
+        ]
+    )
+
+    st.subheader("📊 Document Statistics")
+
+    col1, col2, col3, col4 = st.columns(4)
 
     with col1:
 
         st.metric(
             "Characters",
-            f"{characters:,}"
+            f"{characters:,}",
         )
 
     with col2:
 
         st.metric(
             "Words",
-            f"{words:,}"
+            f"{words:,}",
         )
 
-col1, col2 = st.columns([3, 1])
+    with col3:
+
+        st.metric(
+            "Lines",
+            f"{lines:,}",
+        )
+
+    with col4:
+
+        st.metric(
+            "Paragraphs",
+            f"{paragraphs:,}",
+        )
+
+if text:
+
+    if len(text) > 12000:
+
+        st.info(
+            "📚 **Long document detected.** "
+            "The analyzer will automatically split the document "
+            "into chunks and combine the results."
+        )
+
+    else:
+
+        st.success(
+            "⚡ **Short document detected.** "
+            "The document can be analyzed directly."
+        )
+
+st.divider()
+
+button_col1, button_col2, button_col3 = st.columns(
+    [3, 1, 1]
+)
 
 
-with col1:
+with button_col1:
 
     analyze_button = st.button(
         "🔍 Analyze Document",
         type="primary",
-        use_container_width=True
+        use_container_width=True,
     )
 
 
-with col2:
+with button_col2:
 
     clear_button = st.button(
         "🗑️ Clear",
-        use_container_width=True
+        use_container_width=True,
     )
 
+
+with button_col3:
+
+    if "result" in st.session_state:
+
+        download_button_placeholder = True
+
+    else:
+
+        download_button_placeholder = False
 
 if clear_button:
 
-    st.session_state.pop(
-        "result",
-        None
-    )
+    st.session_state.pop("result", None)
 
     st.rerun()
 
@@ -191,7 +331,7 @@ if analyze_button:
     if not text.strip():
 
         st.warning(
-            "⚠️ Please enter text or upload a TXT file."
+            "⚠️ Please enter some text or upload a TXT file."
         )
 
     else:
@@ -204,10 +344,27 @@ if analyze_button:
 
                 result = summarize_text(
                     text,
-                    summary_type
+                    summary_type,
                 )
 
             if isinstance(result, str):
+
+                result = result.strip()
+
+                # Remove accidental markdown JSON fences
+                if result.startswith("```json"):
+
+                    result = result[7:]
+
+                elif result.startswith("```"):
+
+                    result = result[3:]
+
+                if result.endswith("```"):
+
+                    result = result[:-3]
+
+                result = result.strip()
 
                 result = json.loads(result)
 
@@ -219,6 +376,10 @@ if analyze_button:
 
             st.session_state["result"] = result
 
+            st.session_state["analyzed_text"] = text
+
+            st.session_state["summary_type"] = summary_type
+
             st.success(
                 "✅ Analysis completed successfully!"
             )
@@ -226,8 +387,11 @@ if analyze_button:
         except json.JSONDecodeError:
 
             st.error(
-                "❌ Gemini returned invalid JSON. "
-                "Please try again."
+                "❌ Gemini returned invalid JSON."
+            )
+
+            st.info(
+                "Please try analyzing the document again."
             )
 
         except Exception as e:
@@ -237,7 +401,7 @@ if analyze_button:
             )
 
             st.info(
-                "Please check your API configuration, "
+                "Please check your Gemini API configuration, "
                 "internet connection, and API quota."
             )
 
@@ -245,9 +409,7 @@ if analyze_button:
                 "Technical details"
             ):
 
-                st.code(
-                    str(e)
-                )
+                st.code(str(e))
 
 if "result" in st.session_state:
 
@@ -257,52 +419,183 @@ if "result" in st.session_state:
 
     st.header("📊 Analysis Results")
 
-    st.subheader("📝 Summary")
+    download_json = json.dumps(
+        result,
+        indent=4,
+        ensure_ascii=False,
+    )
+
+    st.download_button(
+        label="⬇️ Download Analysis as JSON",
+        data=download_json,
+        file_name="ai_text_analysis.json",
+        mime="application/json",
+    )
+
+    st.markdown(
+        '<div class="card">',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '<div class="card-title">📝 Summary</div>',
+        unsafe_allow_html=True,
+    )
 
     summary = result.get(
         "summary",
-        "No summary available."
+        "No summary available.",
     )
 
-    st.info(summary)
+    st.write(summary)
 
-    st.subheader("🔑 Key Points")
-
-    key_points = result.get(
-        "key_points",
-        []
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
     )
 
-    if key_points:
+    col1, col2 = st.columns(2)
 
-        for point in key_points:
+    with col1:
 
-            st.markdown(
-                f"- {point}"
-            )
-
-    else:
-
-        st.write(
-            "No key points found."
-        )
-
-    st.subheader("🏷️ Keywords")
-
-    keywords = result.get(
-        "keywords",
-        []
-    )
-
-    if keywords:
-
-        keyword_text = " • ".join(
-            str(keyword)
-            for keyword in keywords
+        st.markdown(
+            '<div class="card">',
+            unsafe_allow_html=True,
         )
 
         st.markdown(
-            f"**{keyword_text}**"
+            '<div class="card-title">🔑 Key Points</div>',
+            unsafe_allow_html=True,
+        )
+
+        key_points = result.get(
+            "key_points",
+            [],
+        )
+
+        if key_points:
+
+            for point in key_points:
+
+                st.markdown(
+                    f"- {point}"
+                )
+
+        else:
+
+            st.write(
+                "No key points found."
+            )
+
+        st.markdown(
+            "</div>",
+            unsafe_allow_html=True,
+        )
+
+    with col2:
+
+        st.markdown(
+            '<div class="card">',
+            unsafe_allow_html=True,
+        )
+
+        st.markdown(
+            '<div class="card-title">😊 Sentiment</div>',
+            unsafe_allow_html=True,
+        )
+
+        sentiment = str(
+            result.get(
+                "sentiment",
+                "Unknown",
+            )
+        ).strip()
+
+        sentiment_lower = sentiment.lower()
+
+
+        if sentiment_lower == "positive":
+
+            st.success(
+                "😊 Positive"
+            )
+
+            st.markdown(
+                '<div class="sentiment-positive">'
+                "Positive Sentiment"
+                "</div>",
+                unsafe_allow_html=True,
+            )
+
+
+        elif sentiment_lower == "negative":
+
+            st.error(
+                "😞 Negative"
+            )
+
+            st.markdown(
+                '<div class="sentiment-negative">'
+                "Negative Sentiment"
+                "</div>",
+                unsafe_allow_html=True,
+            )
+
+
+        else:
+
+            st.info(
+                "😐 Neutral"
+            )
+
+            st.markdown(
+                '<div class="sentiment-neutral">'
+                "Neutral Sentiment"
+                "</div>",
+                unsafe_allow_html=True,
+            )
+
+
+        st.markdown(
+            "</div>",
+            unsafe_allow_html=True,
+        )
+
+    st.markdown(
+        '<div class="card">',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '<div class="card-title">🏷️ Keywords</div>',
+        unsafe_allow_html=True,
+    )
+
+    keywords = result.get(
+        "keywords",
+        [],
+    )
+
+
+    if keywords:
+
+        keyword_html = (
+            '<div class="keyword-container">'
+        )
+
+        for keyword in keywords:
+
+            keyword_html += (
+                '<span class="keyword-chip">'
+                f"{keyword}"
+                "</span>"
+            )
+
+        keyword_html += "</div>"
+
+        st.markdown(
+            keyword_html,
+            unsafe_allow_html=True,
         )
 
     else:
@@ -311,49 +604,47 @@ if "result" in st.session_state:
             "No keywords found."
         )
 
-    st.subheader("😊 Sentiment")
-
-    sentiment = str(
-        result.get(
-            "sentiment",
-            "Unknown"
-        )
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
     )
 
-    sentiment_lower = sentiment.lower()
+    st.markdown(
+        '<div class="card">',
+        unsafe_allow_html=True,
+    )
 
-    if sentiment_lower == "positive":
-
-        st.success(
-            "😊 Positive"
-        )
-
-    elif sentiment_lower == "negative":
-
-        st.error(
-            "😞 Negative"
-        )
-
-    else:
-
-        st.info(
-            "😐 Neutral"
-        )
-
-    st.subheader("🏢 Named Entities")
+    st.markdown(
+        '<div class="card-title">🏢 Named Entities</div>',
+        unsafe_allow_html=True,
+    )
 
     entities = result.get(
         "entities",
-        []
+        [],
     )
+
 
     if entities:
 
+        entity_html = (
+            '<div class="entity-container">'
+        )
+
         for entity in entities:
 
-            st.markdown(
-                f"- **{entity}**"
+            entity_html += (
+                '<span class="entity-chip">'
+                f"{entity}"
+                "</span>"
             )
+
+        entity_html += "</div>"
+
+        st.markdown(
+            entity_html,
+            unsafe_allow_html=True,
+        )
 
     else:
 
@@ -361,20 +652,36 @@ if "result" in st.session_state:
             "No named entities found."
         )
 
-    st.subheader("✅ Action Items")
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '<div class="card">',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        '<div class="card-title">✅ Action Items</div>',
+        unsafe_allow_html=True,
+    )
 
     action_items = result.get(
         "action_items",
-        []
+        [],
     )
+
 
     if action_items:
 
-        for action in action_items:
+        for index, action in enumerate(
+            action_items
+        ):
 
             st.checkbox(
                 action,
-                key=f"action_{action}"
+                key=f"action_item_{index}",
             )
 
     else:
@@ -382,3 +689,25 @@ if "result" in st.session_state:
         st.write(
             "No action items found."
         )
+
+    st.markdown(
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+    with st.expander(
+        "🔧 View Raw JSON"
+    ):
+
+        st.json(result)
+
+st.markdown(
+    """
+    <div class="footer">
+        🤖 AI Text Analyzer &nbsp;•&nbsp;
+        Powered by Google Gemini &nbsp;•&nbsp;
+        Built with Python and Streamlit
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
